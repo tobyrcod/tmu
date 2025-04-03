@@ -252,7 +252,9 @@ class TMClassifier(TMBaseModel, MultiClauseBankMixin, MultiWeightBankMixin):
             for k in range(self.clause_banks[0].number_of_literals // 2, self.clause_banks[0].number_of_literals):
                 ta_chunk = k // 32
                 chunk_pos = k % 32
-                literal_active[ta_chunk] &= (~(1 << chunk_pos))
+                # Create the mask as a NumPy uint32 value from the start
+                mask = np.uint32(0xFFFFFFFF) ^ np.uint32(1 << chunk_pos)
+                literal_active[ta_chunk] &= mask
         literal_active = literal_active.astype(np.uint32)
 
         return literal_active
